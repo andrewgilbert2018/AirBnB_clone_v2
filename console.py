@@ -114,56 +114,24 @@ class HBNBCommand(cmd.Cmd):
         pass
 
     def do_create(self, args):
-        """ Create an object of any class"""
-        if not args:
+        """Creates a new instance of BaseModel"""
+        try:
+            if not line:
+                raise SyntaxError()
+            my_list = line.split(" ")
+            obj = eval("{}()".format(my_list[0]))
+            
+            for index in range(1, len(my_list)):
+                p_v = self.valid_param(my_list[index])
+                if p_v:
+                    obj.__dict__[p_v[0]] = p_v[1]
+            
+            obj.save()
+            print("{}".format(obj.id))
+        except SyntaxError:
             print("** class name missing **")
-            return
-
-        commands = argrs[:]
-        commands = commands.partion(' ')
-        classes = commands[0]
-
-        elif classes not in HBNBCommand.classes:
+        except NameError:
             print("** class doesn't exist **")
-            return
-
-        new_instance = HBNBCommand.classes[classes]()
-        commands = commands[2]
-        new_dict = {}
-        while len(commands) !=0:
-            commands = commands.partition(" ")
-            parameter = commands[0].partition("=")
-            key = parameter[0]
-            value = parameter[2]
-            if value.isdecimal():
-                value = int(value)
-            else:
-                try:
-                    value = float(value)
-                except:
-                    if value[0] is '\"' and value[-1] is '\"':
-                        valid = 1
-                        value = value[1:-1]
-                        value = value.replace('_',' ')
-                        index = value.find('\"',1)
-                        for i in range(len(value)):
-                            if (i == 0 and value[i] =='"'):
-                                valid = 0
-                            if (value[i] == '"'):
-                                if (value[i - 1] != '\\'):
-                                    valid = 0
-                        if (valid == 0):
-                            commands = commands[2]
-                            continue
-                        else:
-                            commands = commands[2]
-                            continue
-                new_dic[key] = value
-                commands = commands[2]
-            new_instance.__dict__.update(new_dict)
-            new_instance.save()
-        print(new_instance.id)
-
     def help_create(self):
         """ Help information for the create method """
         print("Creates a class of any type")
