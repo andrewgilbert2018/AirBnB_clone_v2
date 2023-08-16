@@ -1,58 +1,48 @@
 #!/usr/bin/python3
-"""a python script  that pack and deploy content to server
 """
-from fabric.api import local, env, run, put
+Fab module to create a targ file of all my static files
+"""
+from fabric.api import local, run, env, put, sudo
 from datetime import datetime
-import os
-env.hosts = ['54.157.154.38', '52.91.151.18']
-env.user = 'ubuntu'
+from os import path
+env.hosts = ['54.157.154.38'52.91.151.18]
 
 
 def do_pack():
-    """a function that pack all content within web_static
-    into a .tgz archive
-    The archive will be put in versions/
     """
-    if not os.path.exists("versions"):
-        local("mkdir versions")
-    now = datetime.now()
-    name = "versions/web_static_{}.tgz".format(
-        now.strftime("%Y%m%d%H%M%S")
-    )
-    cmd = "tar -cvzf {} {}".format(name, "web_static")
-    result = local(cmd)
-    if not result.failed:
-        return name
+    function to pack in .tgz
+    """
+    local("mkdir -p versions")
+    now = datetime.today()
+    try:
+        file_name = "web_static_{}{}{}{}{}{}.tgz".format(now.year, now.month,
+                                                         now.day, now.hour,
+                                                         now.minute,
+                                                         now.second)
+        local("tar -cvzf versions/{} web_static".format(file_name))
+        return (file_name)
+    except:
+        return (None)
 
 
 def do_deploy(archive_path):
-    """a function that deploy package to remote server
-    Arguments:
-        archive_path: path to archive to deploy
     """
-    if not archive_path or not os.path.exists(archive_path):
+    logic to deploy into ssh servers
+    """
+    if not path.isfile(archive_path):
         return False
-    put(archive_path, '/tmp')
-    ar_name = archive_path[archive_path.find("/") + 1: -4]
     try:
-        run('mkdir -p /data/web_static/releases/{}/'.format(ar_name))
-        run('tar -xzf /tmp/{}.tgz -C /data/web_static/releases/{}/'.format(
-                ar_name, ar_name
-        ))
-        run('rm /tmp/{}.tgz'.format(ar_name))
-        run('mv /data/web_static/releases/{}/web_static/* \
-            /data/web_static/releases/{}/'.format(
-                ar_name, ar_name
-        ))
-        run('rm -rf /data/web_static/releases/{}/web_static'.format(
-            ar_name
-        ))
-        run('rm -rf /data/web_static/current')
-        run('ln -s /data/web_static/releases/{}/ \
-            /data/web_static/current'.format(
-            ar_name
-        ))
-        print("New version deployed!")
-        return True
+        put(archive_path, "/tmp/")
+        directory_path = archive_path.split(".")[0]
+        directory_path = directory_path.split("/")[-1]
+        archive_path = archive_path.split("/")[-1]
+        sudo("mkdir -p /data/web_static/releases/{}/".format(directory_path))
+        full_path = "/data/web_static/releases/{}".format(directory_path)
+        sudo("tar -xvzf /tmp/{} -C {}".format(archive_path, full_path))
+        sudo("rm -rf /tmp/{}".format(archive_path))
+        sudo("mv -f {}/web_static/* {}".format(full_path, full_path))
+        sudo("rm -rf /data/web_static/current")
+        sudo("ln -sf {} /data/web_static/current".format(full_path))
+        return(True)
     except:
-        return False
+        return(False)
