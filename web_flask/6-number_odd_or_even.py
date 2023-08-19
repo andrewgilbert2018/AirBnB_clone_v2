@@ -47,8 +47,6 @@ def return_page_even(num=None):
         return render_template("6-number_odd_or_even.html", value=data)
     else:
         data = "{} is even".format(num)
-
-
 return render_template("6-number_odd_or_even.html", value=data)
 
 
