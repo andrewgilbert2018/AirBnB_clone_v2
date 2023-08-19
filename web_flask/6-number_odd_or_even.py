@@ -13,70 +13,55 @@ Routes:
     /number_odd_or_even/<n>: Displays an HTML page only if <n> is an integer.
         - States whether <n> is even or odd in the body.
 """
-from flask import Flask
-from flask import render_template
-
+"""
+Starts a server
+"""
+from flask import Flask, render_template
 app = Flask(__name__)
-app.jinja_env.trim_blocks = True
-app.jinja_env.lstrip_blocks = True
+app.url_map.strict_slashes = False
 
 
-@app.route("/", strict_slashes=False)
+@app.route('/')
 def hello_hbnb():
-    """Displays 'Hello HBNB!'"""
-    return "Hello HBNB!"
+    return 'Hello HBNB!'
 
 
-@app.route("/hbnb", strict_slashes=False)
+@app.route('/hbnb')
 def hbnb():
-    """Displays 'HBNB'"""
-    return "HBNB"
+    return 'HBNB'
 
 
-@app.route("/c/<text>", strict_slashes=False)
-def c(text):
-    """Displays 'C' followed by the value of <text>
-
-    Replaces any underscores in <text> with slashes.
-    """
-    text = text.replace("_", " ")
-    return "C {}".format(text)
+@app.route('/c/<string:name>')
+def cname(name=None):
+    name = name.replace("_", " ")
+    return "C {}".format(name)
 
 
-@app.route("/python", strict_slashes=False)
-@app.route("/python/<text>", strict_slashes=False)
-def python(text="is cool"):
-    """Displays 'Python' followed by the value of <text>
-
-    Replaces any underscores in <text> with slashes.
-    """
+@app.route('/python/', defaults={'text': "is cool"})
+@app.route('/python/<string:text>')
+def pythontext(text="is cool"):
     text = text.replace("_", " ")
     return "Python {}".format(text)
 
 
-@app.route("/number/<int:n>", strict_slashes=False)
-def number(n):
-    """Displays 'n is a number' only if <n> is an integer."""
-    return "{} is a number".format(n)
+@app.route('/number/<int:num>')
+def isnumber(num=None):
+    return "{} is a number".format(num)
 
 
-@app.route("/number_template/<int:n>", strict_slashes=False)
-def number_template(n):
-    """Displays an HTML page only if <n> is an integer.
-
-    Displays the value of <n> in the body.
-    """
-    return render_template("5-number.html", n=n)
+@app.route('/number_template/<int:num>')
+def return_page(num=None):
+    return render_template("5-number.html", value=num)
 
 
-@app.route("/number_odd_or_even/<int:n>", strict_slashes=False)
-def number_odd_or_even(n):
-    """Displays an HTML page only if <n> is an integer.
+@app.route('/number_odd_or_even/<int:num>')
+def return_page_even(num=None):
+    if (num & 1):
+        data = "{} is odd".format(num)
+        return render_template("6-number_odd_or_even.html", value=data)
+    else:
+        data = "{} is even".format(num)
+        return render_template("6-number_odd_or_even.html", value=data)
 
-    States whether <n> is odd or even in the body.
-    """
-    return render_template("6-number_odd_or_even.html", n=n)
-
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0"
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', debug=True)
