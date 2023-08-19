@@ -47,7 +47,10 @@ def return_page_even(num=None):
         return render_template("6-number_odd_or_even.html", value=data)
     else:
         data = "{} is even".format(num)
-        return render_template("6-number_odd_or_even.html", value=data)
+
+
+return render_template("6-number_odd_or_even.html", value=data)
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True)
