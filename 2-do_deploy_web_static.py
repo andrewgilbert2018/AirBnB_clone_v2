@@ -5,7 +5,7 @@ Fab module to create a targ file of all my static files
 from fabric.api import local, run, env, put, sudo
 from datetime import datetime
 from os import path
-env.hosts = ['54.157.154.38'52.91.151.18]
+env.hosts = ['100.26.178.148', '3.90.82.249']
 
 
 def do_pack():
@@ -21,7 +21,7 @@ def do_pack():
                                                          now.second)
         local("tar -cvzf versions/{} web_static".format(file_name))
         return (file_name)
-    except:
+    except exception:
         return (None)
 
 
@@ -44,5 +44,5 @@ def do_deploy(archive_path):
         sudo("rm -rf /data/web_static/current")
         sudo("ln -sf {} /data/web_static/current".format(full_path))
         return(True)
-    except:
+    except exception:
         return(False)
